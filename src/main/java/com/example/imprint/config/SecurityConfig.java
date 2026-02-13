@@ -28,28 +28,26 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(f -> f.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        // 회원가입 및 이메일 인증 관련 API 모두 허용
-                        .requestMatchers("/api/mail/**", "/account/signup").permitAll()
-                        // 로그인 API 주소 허용
-                        .requestMatchers("/account/login").permitAll()
-                        // 정적 리소스 및 화면 주소 허용
-                        .requestMatchers("/", "/test.html", "/loginForm.html", "/main.html").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/mail/**", "/account/**").permitAll()
+                        .requestMatchers("/", "/test.html", "/loginForm.html", "/loginForm", "/main.html").permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .formLogin(form -> form
                         .loginPage("/loginForm.html")
+                        // 프론트가 POST를 보낼 위치
+                        .loginProcessingUrl("/account/login")
+                        // 필드명 일치
                         .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/main.html", true)
                         .permitAll()
                 )
-
                 .logout(logout -> logout
                         .logoutUrl("/account/logout")
                         .logoutSuccessUrl("/loginForm.html")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll()
                 );
 
         return http.build();
