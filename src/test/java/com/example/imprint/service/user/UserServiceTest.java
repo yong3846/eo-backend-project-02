@@ -3,6 +3,7 @@ package com.example.imprint.service.user;
 import com.example.imprint.domain.user.UserJoinRequestDto;
 import com.example.imprint.repository.user.EmailVerificationRepository;
 import com.example.imprint.repository.user.UserRepository;
+import com.example.imprint.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

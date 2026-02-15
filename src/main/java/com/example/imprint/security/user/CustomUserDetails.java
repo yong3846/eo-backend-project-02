@@ -16,6 +16,10 @@ public class CustomUserDetails implements UserDetails {
 
     private final UserEntity user;
 
+    public Long getUserId() {
+        return user.getId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 권한 설정 (기본적으로 ROLE_USER 부여)

@@ -6,7 +6,7 @@ import com.example.imprint.domain.user.UserJoinRequestDto;
 import com.example.imprint.domain.user.UserLoginRequestDto;
 import com.example.imprint.domain.user.UserResponseDto;
 import com.example.imprint.security.user.CustomUserDetails;
-import com.example.imprint.service.user.UserService;
+import com.example.imprint.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

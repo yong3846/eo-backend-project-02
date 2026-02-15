@@ -1,7 +1,7 @@
 package com.example.imprint.controller.user;
 
 import com.example.imprint.domain.ApiResponseDto;
-import com.example.imprint.service.user.MailService;
+import com.example.imprint.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

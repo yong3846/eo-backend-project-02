@@ -1,4 +1,4 @@
-package com.example.imprint.service.message;
+package com.example.imprint.service;
 
 import com.example.imprint.domain.message.MessageEntity;
 import com.example.imprint.domain.message.MessageResponseDto;

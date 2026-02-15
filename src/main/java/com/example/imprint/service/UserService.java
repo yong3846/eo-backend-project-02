@@ -1,4 +1,4 @@
-package com.example.imprint.service.user;
+package com.example.imprint.service;
 
 import com.example.imprint.domain.user.UserEntity;
 import com.example.imprint.domain.user.UserJoinRequestDto;

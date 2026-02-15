@@ -1,4 +1,4 @@
-package com.example.imprint.service.user;
+package com.example.imprint.service;
 
 import com.example.imprint.domain.user.EmailVerification;
 import com.example.imprint.repository.user.EmailVerificationRepository;

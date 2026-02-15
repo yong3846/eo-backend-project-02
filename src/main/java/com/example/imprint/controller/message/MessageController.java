@@ -4,7 +4,7 @@ import com.example.imprint.domain.ApiResponseDto;
 import com.example.imprint.domain.message.MessageRequestDto;
 import com.example.imprint.domain.message.MessageResponseDto;
 import com.example.imprint.security.user.CustomUserDetails;
-import com.example.imprint.service.message.MessageService;
+import com.example.imprint.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

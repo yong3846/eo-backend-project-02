@@ -40,6 +40,15 @@ public class UserEntity extends BaseTimeEntity {
     private String status = "PENDING";
 
     // 비즈니스 로직
+
+    /**
+     * 비밀번호 및 닉네임 수정 (요구사항 반영)
+     */
+    public void updateProfile(String nickname, String password) {
+        this.nickname = nickname;
+        this.password = password;
+    }
+
     public void activate() {
         this.status = "ACTIVE";
     }

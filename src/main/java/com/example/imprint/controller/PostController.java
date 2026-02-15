@@ -1,95 +1,84 @@
 package com.example.imprint.controller;
 
-import com.example.imprint.domain.board.BoardEntity;
-import com.example.imprint.domain.user.UserEntity;
 import com.example.imprint.domain.post.PostRequestDto;
 import com.example.imprint.domain.post.PostResponseDto;
-import com.example.imprint.repository.BoardRepository;
+import com.example.imprint.security.user.CustomUserDetails; // 인증 객체 임포트
 import com.example.imprint.service.PostService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal; // 추가
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
-@Controller
-@RequestMapping("/board")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
-    private final BoardRepository boardRepository;
 
-    @GetMapping("/list")
-    public String list(@RequestParam("board") BoardEntity board,
-                       @PageableDefault(size = 10) Pageable pageable,
-                       Model model) {
-        Page<PostResponseDto> postList = postService.getPostList(board, pageable);
-        model.addAttribute("posts", postList);
-        return "board/list";
+    /**
+     * 게시물 등록 (로그인한 사용자 정보 자동 주입)
+     */
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Long> createPost(
+            @Valid @RequestPart("post") PostRequestDto requestDto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @AuthenticationPrincipal CustomUserDetails userDetails) { // @RequestParam 제거
+
+        // 세션에서 꺼낸 실제 유저 ID 사용
+        Long postId = postService.createPost(requestDto, files, userDetails.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(postId);
     }
 
-    @GetMapping("/read")
-    public String read(@RequestParam("id") Long id,
-                       @RequestParam(value = "page", defaultValue = "0") int page,
-                       Model model) {
-        PostResponseDto post = postService.getPost(id);
-        model.addAttribute("post", post);
-        model.addAttribute("page", page);
-        return "board/read";
+    /**
+     * 게시물 수정 (작성자 본인 확인 로직은 Service에서 수행)
+     */
+    @PutMapping(value = "/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Void> updatePost(
+            @PathVariable Long postId,
+            @Valid @RequestPart("post") PostRequestDto requestDto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        postService.updatePost(postId, requestDto, files, userDetails.getUserId());
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/write")
-    public String writeForm(HttpSession session, Model model) {
-        if (session.getAttribute("loginUser") == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("postDto", new PostRequestDto());
-        return "board/write";
+    /**
+     * 게시물 삭제
+     */
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        postService.deletePost(postId, userDetails.getUserId());
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/write")
-    public String write(@Valid @ModelAttribute("postDto") PostRequestDto dto,
-                        BindingResult bindingResult,
-                        HttpSession session,
-                        RedirectAttributes redirectAttributes) {
-
-        UserEntity user = (UserEntity) session.getAttribute("loginUser");
-        if (user == null) return "redirect:/login";
-
-        if (bindingResult.hasErrors()) return "board/write";
-
-        Long postId = postService.writePost(dto, user);
-
-        redirectAttributes.addAttribute("id", postId);
-        return "redirect:/board/read";
+    /**
+     * 게시물 단건 상세 조회
+     * GET /api/posts/{postId}
+     */
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long postId) {
+        PostResponseDto responseDto = postService.getPost(postId);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/update")
-    public String update(@RequestParam("id") Long id,
-                         @Valid @ModelAttribute("postDto") PostRequestDto dto,
-                         BindingResult bindingResult,
-                         HttpSession session,
-                         RedirectAttributes redirectAttributes) {
-
-        UserEntity user = (UserEntity) session.getAttribute("loginUser");
-        if (bindingResult.hasErrors()) return "board/update";
-
-        postService.updatePost(id, dto, user);
-        redirectAttributes.addAttribute("id", id);
-        return "redirect:/board/read";
-    }
-
-    @PostMapping("/delete")
-    public String delete(@RequestParam("id") Long id, HttpSession session) {
-        UserEntity user = (UserEntity) session.getAttribute("loginUser");
-        postService.deletePost(id, user);
-        return "redirect:/board/list";
+    /**
+     * 특정 게시판의 게시물 목록 조회
+     * GET /api/posts/board/{boardId}
+     */
+    @GetMapping("/board/{boardId}")
+    public ResponseEntity<List<PostResponseDto>> getPostsByBoard(@PathVariable Long boardId) {
+        List<PostResponseDto> posts = postService.getPostsByBoard(boardId);
+        return ResponseEntity.ok(posts);
     }
 }

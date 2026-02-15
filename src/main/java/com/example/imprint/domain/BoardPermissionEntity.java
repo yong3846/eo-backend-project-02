@@ -1,5 +1,6 @@
 package com.example.imprint.domain;
 
+import com.example.imprint.domain.board.BoardEntity;
 import com.example.imprint.domain.user.UserEntity;
 import com.example.imprint.domain.user.UserRole;
 import jakarta.persistence.*;

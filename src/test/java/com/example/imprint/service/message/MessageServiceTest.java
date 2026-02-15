@@ -5,6 +5,7 @@ import com.example.imprint.domain.user.UserEntity;
 import com.example.imprint.domain.user.UserRole;
 import com.example.imprint.repository.message.MessageRepository;
 import com.example.imprint.repository.user.UserRepository;
+import com.example.imprint.service.MessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class MessageServiceTest {
 
-    @Autowired MessageService messageService;
+    @Autowired
+    MessageService messageService;
     @Autowired UserRepository userRepository;
     @Autowired MessageRepository messageRepository;
 

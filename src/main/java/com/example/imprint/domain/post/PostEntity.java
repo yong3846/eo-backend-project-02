@@ -1,66 +1,58 @@
 package com.example.imprint.domain.post;
 
 import com.example.imprint.domain.BaseTimeEntity;
-import com.example.imprint.domain.BoardEntity;
+import com.example.imprint.domain.attachment.AttachmentEntity;
+import com.example.imprint.domain.board.BoardEntity;
+import com.example.imprint.domain.comment.CommentEntity;
 import com.example.imprint.domain.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class PostEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 어떤 게시판에 속해 있는가 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity board;
 
+    // 누가 작성했는가 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity writer;
+    private UserEntity user;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, length = 200)
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @ColumnDefault("0")
-    private int views;
+    // --- 비즈니스 로직 ---
 
-    @ColumnDefault("0")
-    private int recommend;
-
-    /*
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FileEntity> files = new ArrayList<>();
+    /**
+     * 게시물 수정
      */
-
-    @Builder
-    public PostEntity(BoardEntity board, UserEntity writer, String title, String content) {
-        this.board = board;
-        this.writer = writer;
-        this.title = title;
-        this.content = content;
-        this.views = 0;
-        this.recommend = 0;
-    }
-
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
     }
 
-    public void incrementViews() {
-        this.views++;
-    }
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id asc") // 댓글 정렬 순서 보장
+    private List<CommentEntity> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AttachmentEntity> attachments = new ArrayList<>();
 }
